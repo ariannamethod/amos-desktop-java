@@ -4,6 +4,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
@@ -138,7 +139,7 @@
                               <Image url="@../resources/img/attach.png" />
                            </image>
                         </ImageView>
-                        <TextField fx:id="messageField" onAction="#sendMessage" prefHeight="51.0" prefWidth="784.0" promptText="Type a message..." style="-fx-background-color: transparent;" stylesheets="@../resources/css/textField.css" HBox.hgrow="ALWAYS" />
+                        <TextArea fx:id="messageField" onKeyPressed="#messageFieldKeyPressed" prefHeight="100.0" prefWidth="784.0" promptText="Type a message..." wrapText="true" style="-fx-background-color: transparent;" stylesheets="@../resources/css/textField.css" HBox.hgrow="ALWAYS" />
                         <ImageView fitHeight="35.0" fitWidth="35.0" onMouseClicked="#smileyButtonClicked" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../resources/img/smile.png" />

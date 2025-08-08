@@ -14,13 +14,19 @@ public class UserViewModel {
     public SimpleStringProperty notificationsNumber;
     public Image avatarImage;
     public ObservableList<MessageViewModel> messagesList;
+    public boolean isBot;
 
     public UserViewModel(String userName, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
+        this(userName, lastMessage, time, notificationsNumber, avatarImage, false);
+    }
+
+    public UserViewModel(String userName, String lastMessage, String time, String notificationsNumber, Image avatarImage, boolean isBot) {
         this.userName = userName;
         this.lastMessage = new SimpleStringProperty(lastMessage);
         this.time = new SimpleStringProperty(time);
         this.notificationsNumber = new SimpleStringProperty(notificationsNumber);
         this.avatarImage = avatarImage;
+        this.isBot = isBot;
         messagesList = FXCollections.observableArrayList();
     }
 
@@ -68,6 +74,14 @@ public class UserViewModel {
 
     public void setAvatarImage(Image avatarImage) {
         this.avatarImage = avatarImage;
+    }
+
+    public boolean isBot() {
+        return isBot;
+    }
+
+    public void setBot(boolean bot) {
+        isBot = bot;
     }
 
     //endregion
