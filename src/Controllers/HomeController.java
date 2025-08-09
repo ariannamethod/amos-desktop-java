@@ -33,6 +33,7 @@ import java.util.ResourceBundle;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.Properties;
 
 import static ToolBox.Utilities.getCurrentTime;
 
@@ -57,27 +58,30 @@ public class HomeController implements Initializable {
     private static final int MAX_MESSAGE_LENGTH = 100000;
     private static final int BATCH_SIZE = 4096;
     private final Map<String, String[]> pendingBatches = new HashMap<>();
+    private static final String CONFIG_PATH = "src/resources/config.properties";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        String name = "Jetlight";
-        usersList.add(new UserViewModel(name, "message ",
-                getCurrentTime(), 0 + "", userImage));
-
-        if (name.equals("Oussama")) {
-            usersList.addAll(new UserViewModel("Oliver", "Hello", getCurrentTime(), 1 + "", userImage)
-                    , new UserViewModel("Harry", "Did you receive my call?", getCurrentTime(), 1 + "", userImage)
-                    , new UserViewModel("George", "How are you?", getCurrentTime(), 2 + "", userImage)
-                    , new UserViewModel("Noah", "Yeah", getCurrentTime(), 0 + "", userImage)
-                    , new UserViewModel("Jack", "No way!", getCurrentTime(), 0 + "", userImage));
-        } else {
-            usersList.addAll(new UserViewModel("Jacob", "Congratulations", getCurrentTime(), 1 + "", userImage)
-                    , new UserViewModel("Leo", "Alright, thanks", getCurrentTime(), 0 + "", userImage)
-                    , new UserViewModel("Oscar", "I agree, when?", getCurrentTime(), 2 + "", userImage));
+        Properties config = new Properties();
+        try (InputStream input = new FileInputStream(CONFIG_PATH)) {
+            config.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), 0 + "", userImage);
+        String[] demoUsers = config.getProperty("demoUsers", "").split(",");
+        for (String demo : demoUsers) {
+            String trimmed = demo.trim();
+            if (!trimmed.isEmpty()) {
+                usersList.add(new UserViewModel(trimmed, "message", getCurrentTime(), "0", userImage));
+            }
+        }
+
+        String localName = LogInController.userName;
+        localUser = new UserViewModel(localName, "message", getCurrentTime(), "0", userImage);
         userNameLabel.setText(localUser.getUserName());
+        final String ip = config.getProperty("ip", "127.0.0.1");
+        final int port = Integer.parseInt(config.getProperty("port", "55555"));
 
         usersListView.setItems(usersList);
         usersListView.setCellFactory(param -> new UserCustomCellController() {
@@ -141,7 +145,7 @@ public class HomeController implements Initializable {
                     }
                 }
             }
-        }), "127.0.0.1", name.equals("Jetlight"), 55555);
+        }), ip, localName.equals("Jetlight"), port);
         connection.openConnection();
 
         usersListView.getSelectionModel().select(0);
