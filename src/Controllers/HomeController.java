@@ -2,6 +2,8 @@ package Controllers;
 
 import Models.UserViewModel;
 import Models.MessageViewModel;
+import Models.ChatMessage;
+import Models.MessageType;
 import ToolBox.NetworkConnection;
 import ToolBox.MessageBatcher;
 import javafx.application.Platform;
@@ -95,27 +97,24 @@ public class HomeController implements Initializable {
         );
 
         connection = new NetworkConnection(data -> Platform.runLater(() -> {
-            Image image = null;
-            String[] messageInfo = data.toString().split(">");
-            String type = messageInfo[0];
-            if (type.matches("image")) {
-                image = new Image((InputStream) data);
+            if (!(data instanceof ChatMessage)) {
+                return;
             }
-
-            if (type.matches("text")) {
-                String sender = messageInfo[1];
-                String receiver = messageInfo[2];
-                String messageText = messageInfo[3];
+            ChatMessage message = (ChatMessage) data;
+            if (message.getType() == MessageType.TEXT) {
+                String sender = message.getSender();
+                String receiver = message.getReceiver();
+                String messageText = message.getContent();
                 if (shouldReceive(receiver)) {
-                    handleIncoming(sender, messageText, image);
+                    handleIncoming(sender, messageText, null);
                 }
-            } else if (type.matches("batch")) {
-                String batchId = messageInfo[1];
-                String sender = messageInfo[2];
-                String receiver = messageInfo[3];
-                int index = Integer.parseInt(messageInfo[4]);
-                int total = Integer.parseInt(messageInfo[5]);
-                String chunk = messageInfo[6];
+            } else if (message.getType() == MessageType.BATCH) {
+                String batchId = message.getBatchId();
+                String sender = message.getSender();
+                String receiver = message.getReceiver();
+                int index = message.getIndex();
+                int total = message.getTotal();
+                String chunk = message.getContent();
                 if (shouldReceive(receiver)) {
                     String key = sender + ">" + receiver + ">" + batchId;
                     String[] parts = pendingBatches.computeIfAbsent(key, k -> new String[total]);
@@ -133,7 +132,7 @@ public class HomeController implements Initializable {
                             full.append(part);
                         }
                         pendingBatches.remove(key);
-                        handleIncoming(sender, full.toString(), image);
+                        handleIncoming(sender, full.toString(), null);
                     }
                 }
             }
@@ -160,11 +159,13 @@ public class HomeController implements Initializable {
             String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
             List<String> chunks = MessageBatcher.split(text, BATCH_SIZE);
             if (chunks.size() == 1) {
-                connection.sendData("text>" + localUser.getUserName() + ">" + receiver + ">" + text);
+                ChatMessage msg = new ChatMessage(localUser.getUserName(), receiver, text);
+                connection.sendData(msg);
             } else {
                 String batchId = String.valueOf(System.currentTimeMillis());
                 for (int i = 0; i < chunks.size(); i++) {
-                    connection.sendData("batch>" + batchId + ">" + localUser.getUserName() + ">" + receiver + ">" + i + ">" + chunks.size() + ">" + chunks.get(i));
+                    ChatMessage msg = new ChatMessage(batchId, localUser.getUserName(), receiver, i, chunks.size(), chunks.get(i));
+                    connection.sendData(msg);
                 }
             }
             messageField.clear();

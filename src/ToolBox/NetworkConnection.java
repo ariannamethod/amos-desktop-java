@@ -31,8 +31,9 @@ public class NetworkConnection {
         connection.start();
     }
 
-    public void sendData(Serializable data) throws IOException {
+    public void sendData(Object data) throws IOException {
         connection.outputStream.writeObject(data);
+        connection.outputStream.flush();
     }
 
     public void sendImage(Image image) throws IOException {
