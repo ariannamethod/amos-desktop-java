@@ -187,6 +187,7 @@ public class HomeController implements Initializable {
         try {
             FileChooser fileChooser = new FileChooser();
             File imageFile = fileChooser.showOpenDialog(new Stage());
+            if (imageFile == null) return;
             BufferedImage bufferedImage = ImageIO.read(imageFile);
             Image image = SwingFXUtils.toFXImage(bufferedImage, null);
             currentlySelectedUser.messagesList.add(new MessageViewModel("", getCurrentTime(), false, true, image));
