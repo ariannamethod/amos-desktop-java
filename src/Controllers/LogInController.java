@@ -14,12 +14,16 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class LogInController implements Initializable {
+public class LogInController implements Initializable, ContextAware {
 
-    public static String userName;
+    private AppContext context;
     @FXML
     private JFXTextField userNameTextField;
 
+    @Override
+    public void setContext(AppContext context) {
+        this.context = context;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -27,12 +31,12 @@ public class LogInController implements Initializable {
 
     @FXML
     void closeApp(MouseEvent event) {
-        Main.stage.close();
+        context.getStage().close();
     }
 
     @FXML
     void minimizeApp(MouseEvent event) {
-        Main.stage.setIconified(true);
+        context.getStage().setIconified(true);
     }
 
     @FXML
@@ -51,9 +55,21 @@ public class LogInController implements Initializable {
         }
 
         try {
-            userName = trimmedName;
-            Parent root = FXMLLoader.load(getClass().getResource("../Views/home_view.fxml"));
-            Main.stage.setScene(new Scene(root));
+            context.setUserName(trimmedName);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/home_view.fxml"));
+            loader.setControllerFactory(type -> {
+                try {
+                    Object controller = type.getDeclaredConstructor().newInstance();
+                    if (controller instanceof ContextAware) {
+                        ((ContextAware) controller).setContext(context);
+                    }
+                    return controller;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            Parent root = loader.load();
+            context.getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }

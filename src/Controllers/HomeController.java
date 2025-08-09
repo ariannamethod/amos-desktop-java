@@ -36,7 +36,14 @@ import java.util.List;
 
 import static ToolBox.Utilities.getCurrentTime;
 
-public class HomeController implements Initializable {
+public class HomeController implements Initializable, ContextAware {
+
+    private AppContext context;
+
+    @Override
+    public void setContext(AppContext context) {
+        this.context = context;
+    }
 
     @FXML
     private Label userNameLabel;
@@ -76,7 +83,7 @@ public class HomeController implements Initializable {
                     , new UserViewModel("Oscar", "I agree, when?", getCurrentTime(), 2 + "", userImage));
         }
 
-        localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), 0 + "", userImage);
+        localUser = new UserViewModel(context.getUserName(), "message", getCurrentTime(), 0 + "", userImage);
         userNameLabel.setText(localUser.getUserName());
 
         usersListView.setItems(usersList);
@@ -329,7 +336,7 @@ public class HomeController implements Initializable {
     void closeApp(MouseEvent event) {
         try {
             connection.closeConnection();
-            Main.stage.close();
+            context.getStage().close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -337,7 +344,7 @@ public class HomeController implements Initializable {
 
     @FXML
     void minimizeApp(MouseEvent event) {
-        Main.stage.setIconified(true);
+        context.getStage().setIconified(true);
     }
 
     int findUser(String userName) {
