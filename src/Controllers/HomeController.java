@@ -2,6 +2,10 @@ package Controllers;
 
 import Models.UserViewModel;
 import Models.MessageViewModel;
+import Models.Message;
+import Models.User;
+import Repository.MessageRepository;
+import Repository.UserRepository;
 import ToolBox.NetworkConnection;
 import ToolBox.MessageBatcher;
 import javafx.application.Platform;
@@ -56,6 +60,8 @@ public class HomeController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        UserRepository.initialize();
+        MessageRepository.initialize();
         String name = "Jetlight";
         usersList.add(new UserViewModel(name, "message ",
                 getCurrentTime(), 0 + "", userImage));
@@ -75,6 +81,11 @@ public class HomeController implements Initializable {
         localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), 0 + "", userImage);
         userNameLabel.setText(localUser.getUserName());
 
+        for (UserViewModel user : usersList) {
+            UserRepository.save(new User(user.getUserName()));
+        }
+        UserRepository.save(new User(localUser.getUserName()));
+
         usersListView.setItems(usersList);
         usersListView.setCellFactory(param -> new UserCustomCellController() {
             {
@@ -88,6 +99,12 @@ public class HomeController implements Initializable {
         });
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                     currentlySelectedUser = usersListView.getSelectionModel().getSelectedItem();
+                    List<Message> history = MessageRepository.getMessagesBetween(localUser.getUserName(), currentlySelectedUser.getUserName());
+                    currentlySelectedUser.messagesList.clear();
+                    for (Message m : history) {
+                        boolean outgoing = m.getSender().equals(localUser.getUserName());
+                        currentlySelectedUser.messagesList.add(new MessageViewModel(m.getContent(), m.getTimestamp(), outgoing, false, null));
+                    }
                     messagesListView.setItems(currentlySelectedUser.messagesList);
                     chatRoomNameLabel.setText(currentlySelectedUser.userName);
                     messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
@@ -156,8 +173,10 @@ public class HomeController implements Initializable {
             if (text.length() > MAX_MESSAGE_LENGTH) {
                 text = text.substring(0, MAX_MESSAGE_LENGTH);
             }
-            currentlySelectedUser.messagesList.add(new MessageViewModel(text, getCurrentTime(), true, false, null));
+            String time = getCurrentTime();
+            currentlySelectedUser.messagesList.add(new MessageViewModel(text, time, true, false, null));
             String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
+            MessageRepository.save(new Message(localUser.getUserName(), receiver, text, time));
             List<String> chunks = MessageBatcher.split(text, BATCH_SIZE);
             if (chunks.size() == 1) {
                 connection.sendData("text>" + localUser.getUserName() + ">" + receiver + ">" + text);
@@ -254,11 +273,13 @@ public class HomeController implements Initializable {
 
     private void handleIncoming(String sender, String messageText, Image image) {
         int userSender = findUser(sender);
-        usersList.get(userSender).time.setValue(getCurrentTime());
+        String time = getCurrentTime();
+        usersList.get(userSender).time.setValue(time);
         if (messageText.matches("null")) {
             usersList.get(userSender).lastMessage.setValue(messageText);
         }
-        usersList.get(userSender).messagesList.add(new MessageViewModel(messageText, getCurrentTime(), false, image != null, image));
+        usersList.get(userSender).messagesList.add(new MessageViewModel(messageText, time, false, image != null, image));
+        MessageRepository.save(new Message(sender, localUser.getUserName(), messageText, time));
         messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
         usersList.get(userSender).notificationsNumber.setValue((Integer.valueOf(currentlySelectedUser.notificationsNumber.getValue()) + 1) + "");
         System.out.println("Sender: " + usersList.get(userSender).userName
