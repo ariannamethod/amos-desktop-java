@@ -141,6 +141,9 @@ public class HomeController implements Initializable {
                     }
                 }
             }
+        }), ex -> Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Connection error: " + ex.getMessage());
+            alert.showAndWait();
         }), "127.0.0.1", name.equals("Jetlight"), 55555);
         connection.openConnection();
 
@@ -154,28 +157,24 @@ public class HomeController implements Initializable {
     }
 
     private void sendMessage() {
-        try {
-            String text = messageField.getText();
-            if (text.isEmpty()) return;
-            if (text.length() > MAX_MESSAGE_LENGTH) {
-                text = text.substring(0, MAX_MESSAGE_LENGTH);
-            }
-            currentlySelectedUser.messagesList.add(new MessageViewModel(text, getCurrentTime(), true, false, null));
-            String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
-            List<String> chunks = MessageBatcher.split(text, BATCH_SIZE);
-            if (chunks.size() == 1) {
-                connection.sendData("text>" + localUser.getUserName() + ">" + receiver + ">" + text);
-            } else {
-                String batchId = String.valueOf(System.currentTimeMillis());
-                for (int i = 0; i < chunks.size(); i++) {
-                    connection.sendData("batch>" + batchId + ">" + localUser.getUserName() + ">" + receiver + ">" + i + ">" + chunks.size() + ">" + chunks.get(i));
-                }
-            }
-            messageField.clear();
-            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
-        } catch (IOException e) {
-            e.printStackTrace();
+        String text = messageField.getText();
+        if (text.isEmpty()) return;
+        if (text.length() > MAX_MESSAGE_LENGTH) {
+            text = text.substring(0, MAX_MESSAGE_LENGTH);
         }
+        currentlySelectedUser.messagesList.add(new MessageViewModel(text, getCurrentTime(), true, false, null));
+        String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
+        List<String> chunks = MessageBatcher.split(text, BATCH_SIZE);
+        if (chunks.size() == 1) {
+            connection.sendData("text>" + localUser.getUserName() + ">" + receiver + ">" + text);
+        } else {
+            String batchId = String.valueOf(System.currentTimeMillis());
+            for (int i = 0; i < chunks.size(); i++) {
+                connection.sendData("batch>" + batchId + ">" + localUser.getUserName() + ">" + receiver + ">" + i + ">" + chunks.size() + ">" + chunks.get(i));
+            }
+        }
+        messageField.clear();
+        messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
     }
 
     @FXML
@@ -327,12 +326,8 @@ public class HomeController implements Initializable {
 
     @FXML
     void closeApp(MouseEvent event) {
-        try {
-            connection.closeConnection();
-            Main.stage.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        connection.closeConnection();
+        Main.stage.close();
     }
 
     @FXML
