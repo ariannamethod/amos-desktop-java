@@ -1,49 +1,45 @@
-# TelegramClone
+# Arianna Method Os Desktop-2
 
-<img width="250" src="Screenshots/Logo.png">
+Arianna Method Os Desktop-2 is an experimental desktop messaging application built with Java and JavaFX.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-![Jetlight studio](https://img.shields.io/badge/Made%20by-Jetlight%20studio-blue.svg?color=082544)
+The project began as a reinterpretation of the open-source Telegram client, focusing on clarity, modularity, and educational value.
 
-## Description:
-JetGram is an open source desktop app [Telegram](https://github.com/telegramdesktop/tdesktop) clone made with JavaFx, it uses a local Java Socket based Server and the routing system is basic.
+At its core, the application relies on a local socket-based server that orchestrates message routing between clients.
 
-## What is Telegram?:
-Telegram is a cloud-based instant messaging and voice over IP service. Telegram client apps are available for Android, iOS, Windows Phone, Windows NT, macOS and Linux. Users can send messages and exchange photos, videos, stickers, audio and files of any type.
+The client interface is constructed with FXML layouts and the JFoenix library, providing material design components for a modern feel.
 
-## Screenshots:
-### A beautiful UI:
-<img src="Screenshots/HomePage.png">
+Each screen is managed by a dedicated controller, linking user actions to the underlying view models and application logic.
 
-### Send and receive messages:
-<img src="Screenshots/JetLightUser.png">
+User authentication is handled through a lightweight `AuthService` class that currently validates fixed username and phone combinations.
 
-### Send and receive images:
-<img src="Screenshots/OussamaUser.png">
+Messages are represented by `MessageViewModel` objects that capture content, timestamps, direction, and attachments for rendering in the UI.
 
-## TODO:
-- [ ] Switch from local Java Server to something more powerful (like FireBase).
-- [ ] Add the Accounts handling.
-- [ ] Enable storage for messages, files, accounts, friends..etc.
-- [ ] Fix Local image sending issues.
-- [ ] Add messaging features like voice recodrings, calls, video chats..etc. 
-- [ ] Add social media features like profile pictures, Emojies and stickers..etc.
+To optimize network usage, the `MessageBatcher` groups outgoing messages before transmission to the socket server.
 
-## Tools & languages:    
-* Intellij Idea (IDE).
-* Java (Logic code).
-* JFoenix (UI Library).
-* FXML & CSS (Design).
-* Paint.Net (Image editting).
-* Java Socket IO (message handling).
+List views display conversations using custom cell controllers, allowing messages and images to be rendered through reusable nodes.
 
-## How to use: 
- #### A stable release will be uploaded after completing the Todo tasks.
- * Fork, clone or download the project and open it with IntellijIdea (or any other IDE) and run the `Main.java` class.
- * Use two instances of the program to correctly test the messaging feautures. (One instance must act as a server) 
+Graphical resources such as the home screen, login form, and settings panel are defined in separate FXML files under the `Views` directory.
 
-## Contribution:
-Feel free to `fork` this project and add whatever you like. If you have any suggestions or any comments please feel free to contact me or to open an issue, use free license art assets please.
+The design embraces a clear separation between models, views, and controllers, making the codebase approachable for JavaFX learners.
 
-## Team:
-[Jetlighters](https://github.com/JetLightStudio) having fun.
+Although the system ships with a minimal feature set, it already supports sending and receiving text as well as image-based messages.
+
+A collection of screenshots in the repository illustrates the interface, showcasing the logo, the home view, and sample conversations.
+
+Unit tests written with JUnit verify utility classes like the authentication service and ensure that UI controllers can reuse loaded nodes.
+
+During the audit, tests depending on JavaFX were attempted in a headless environment, revealing limitations when no graphical pipeline is available.
+
+The project is distributed under the permissive MIT License, encouraging experimentation and community contributions.
+
+Developers can build the application by compiling the sources with Java 11 or later and executing the `Main` class from the `Controllers` package.
+
+Running the program in two instances allows basic end-to-end messaging, where one instance may act as the server for the other.
+
+Future enhancements outlined by the maintainers include replacing the local server with a scalable backend and adding account management features.
+
+Additional goals mention persistent storage for messages and multimedia, richer messaging options, and social elements like avatars and stickers.
+
+Contributors are welcome to fork the repository, propose improvements, and submit pull requests that align with the project's clean coding style.
+
+This revised documentation encapsulates the current state of Arianna Method Os Desktop-2 and records the auditing updates performed in this iteration.
