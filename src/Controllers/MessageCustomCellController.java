@@ -12,49 +12,89 @@ import java.io.IOException;
 
 public class MessageCustomCellController extends ListCell<MessageViewModel> {
 
-    @FXML
-    private GridPane root;
+    private final MessageCell incomingMessage;
+    private final MessageCell outgoingMessage;
+    private final ImageCell incomingImage;
+    private final ImageCell outgoingImage;
 
-    @FXML
-    private ImageView imageView;
+    public MessageCustomCellController() {
+        incomingMessage = loadMessageCell("../Views/incoming_message_custom_cell_view.fxml");
+        outgoingMessage = loadMessageCell("../Views/outgoing_message_custom_cell_view.fxml");
+        incomingImage = loadImageCell("../Views/incoming_image_custom_cell_view.fxml");
+        outgoingImage = loadImageCell("../Views/outgoing_image_custom_cell_view.fxml");
+    }
 
-    @FXML
-    private Label messageLabel;
+    private MessageCell loadMessageCell(String resource) {
+        MessageCell cell = new MessageCell();
+        cell.loader = new FXMLLoader(getClass().getResource(resource));
+        cell.loader.setController(cell);
+        try {
+            cell.loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return cell;
+    }
 
-    @FXML
-    private Label messageTimeLabel;
+    private ImageCell loadImageCell(String resource) {
+        ImageCell cell = new ImageCell();
+        cell.loader = new FXMLLoader(getClass().getResource(resource));
+        cell.loader.setController(cell);
+        try {
+            cell.loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return cell;
+    }
+
+    private static class MessageCell {
+        FXMLLoader loader;
+        @FXML
+        GridPane root;
+        @FXML
+        Label messageLabel;
+        @FXML
+        Label messageTimeLabel;
+    }
+
+    private static class ImageCell {
+        FXMLLoader loader;
+        @FXML
+        GridPane root;
+        @FXML
+        ImageView imageView;
+        @FXML
+        Label messageTimeLabel;
+    }
 
     @Override
     protected void updateItem(MessageViewModel item, boolean empty) {
         super.updateItem(item, empty);
-        FXMLLoader fxmlLoader;
         if (empty || item == null) {
             setText(null);
             setGraphic(null);
-        } else {
-            if (item.isOutgoing) {
-                if (item.isImage) {
-                    fxmlLoader = new FXMLLoader(getClass().getResource("../Views/outgoing_image_custom_cell_view.fxml"));
-                } else {
-                    fxmlLoader = new FXMLLoader(getClass().getResource("../Views/outgoing_message_custom_cell_view.fxml"));
-                }
+        } else if (item.isOutgoing) {
+            if (item.isImage) {
+                outgoingImage.messageTimeLabel.setText(item.getTime());
+                outgoingImage.imageView.setImage(item.getImage());
+                setGraphic(outgoingImage.root);
             } else {
-                if (item.isImage) {
-                    fxmlLoader = new FXMLLoader(getClass().getResource("../Views/incoming_image_custom_cell_view.fxml"));
-                } else {
-                    fxmlLoader = new FXMLLoader(getClass().getResource("../Views/incoming_message_custom_cell_view.fxml"));
-                }
+                outgoingMessage.messageTimeLabel.setText(item.getTime());
+                outgoingMessage.messageLabel.setText(item.getMessage());
+                setGraphic(outgoingMessage.root);
             }
-            fxmlLoader.setController(this);
-            try {
-                fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
+        } else {
+            if (item.isImage) {
+                incomingImage.messageTimeLabel.setText(item.getTime());
+                incomingImage.imageView.setImage(item.getImage());
+                setGraphic(incomingImage.root);
+            } else {
+                incomingMessage.messageTimeLabel.setText(item.getTime());
+                incomingMessage.messageLabel.setText(item.getMessage());
+                setGraphic(incomingMessage.root);
             }
-            messageTimeLabel.setText(item.getTime());
-            if (item.isImage) imageView.setImage(item.getImage());
-            else messageLabel.setText(item.getMessage());
-            setGraphic(root);
         }
     }
 }
+

@@ -34,6 +34,19 @@ public class UserCustomCellController extends ListCell<UserViewModel> {
     @FXML
     private StackPane notificationPanel;
 
+    private final FXMLLoader fxmlLoader;
+    private final GridPane rootNode;
+
+    public UserCustomCellController() {
+        fxmlLoader = new FXMLLoader(getClass().getResource("../Views/user_custom_cell_view.fxml"));
+        fxmlLoader.setController(this);
+        try {
+            rootNode = fxmlLoader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     protected void updateItem(UserViewModel item, boolean empty) {
         super.updateItem(item, empty);
@@ -41,21 +54,16 @@ public class UserCustomCellController extends ListCell<UserViewModel> {
             setText(null);
             setGraphic(null);
         } else {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/user_custom_cell_view.fxml"));
-            fxmlLoader.setController(this);
-            try {
-                fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             userNameLabel.setText(String.valueOf(item.getUserName()));
             lastMessageLabel.setText(String.valueOf(item.getLastMessage()));
             messageTimeLabel.textProperty().bind(item.time);
             if (!item.getNotificationsNumber().equals("0")) {
                 nombreMessageLabel.textProperty().bind(item.notificationsNumberProperty());
                 if (!notificationPanel.isVisible()) notificationPanel.setVisible(true);
+            } else {
+                notificationPanel.setVisible(false);
             }
-            setGraphic(root);
+            setGraphic(rootNode);
         }
     }
 }
