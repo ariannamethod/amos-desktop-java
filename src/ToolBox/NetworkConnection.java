@@ -2,74 +2,148 @@ package ToolBox;
 
 import javafx.scene.image.Image;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-public class NetworkConnection {
-    private ConnectionThread connection = new ConnectionThread();
-    public Consumer<Serializable> receiveCallBack;
-    public String ip;
-    public boolean isServer;
-    public int port;
+/**
+ * NetworkConnection handles asynchronous communication using an {@link ExecutorService}.
+ * It supports callbacks for received data, connection status changes and errors.
+ */
+public class NetworkConnection implements Closeable {
+    private final ExecutorService connectionExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService sendExecutor = Executors.newSingleThreadExecutor();
+    private final Consumer<Serializable> receiveCallBack;
+    private final Consumer<Boolean> statusCallback;
+    private final Consumer<Exception> errorCallback;
+    private final String ip;
+    private final boolean isServer;
+    private final int port;
 
+    private volatile boolean running;
+    private Socket socket;
+    private ServerSocket serverSocket;
+    private ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
 
-    public NetworkConnection(Consumer<Serializable> receiveCallBack, String ip, boolean isServer, int port) {
+    public NetworkConnection(Consumer<Serializable> receiveCallBack,
+                             Consumer<Boolean> statusCallback,
+                             Consumer<Exception> errorCallback,
+                             String ip, boolean isServer, int port) {
         this.receiveCallBack = receiveCallBack;
+        this.statusCallback = statusCallback;
+        this.errorCallback = errorCallback;
         this.ip = ip;
         this.isServer = isServer;
         this.port = port;
     }
 
+    /**
+     * Opens the connection and starts listening asynchronously.
+     */
     public void openConnection() {
-        connection.start();
+        running = true;
+        connectionExecutor.submit(this::runConnection);
     }
 
-    public void sendData(Serializable data) throws IOException {
-        connection.outputStream.writeObject(data);
-    }
-
-    public void sendImage(Image image) throws IOException {
-        connection.outputStream.defaultWriteObject();
-        connection.outputStream.writeObject(image);
-    }
-
-    public void closeConnection() throws IOException {
-        connection.socket.close();
-    }
-
-    private class ConnectionThread extends Thread {
-        private Socket socket;
-        private ObjectOutputStream outputStream;
-
-        @Override
-        public void run() {
-            super.run();
+    private void runConnection() {
+        while (running) {
             try {
-                ServerSocket server = isServer ? new ServerSocket(port) : null;
-                Socket socket = isServer ? server.accept() : new Socket(ip, port);
-                ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
-                socket.setTcpNoDelay(true);
-                this.socket = socket;
-                this.outputStream = outputStream;
-
-                while (true) {
-                    Serializable data = (Serializable) inputStream.readObject();
-                    receiveCallBack.accept(data);
-
+                startSocket();
+                if (statusCallback != null) statusCallback.accept(true);
+                listen();
+            } catch (Exception e) {
+                if (errorCallback != null) errorCallback.accept(e);
+                if (statusCallback != null) statusCallback.accept(false);
+                closeResources();
+                if (running) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
-
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
             }
         }
     }
 
+    private void startSocket() throws IOException {
+        if (isServer) {
+            serverSocket = new ServerSocket(port);
+            socket = serverSocket.accept();
+        } else {
+            socket = new Socket(ip, port);
+        }
+        socket.setTcpNoDelay(true);
+        outputStream = new ObjectOutputStream(socket.getOutputStream());
+        inputStream = new ObjectInputStream(socket.getInputStream());
+    }
+
+    private void listen() throws IOException, ClassNotFoundException {
+        while (running && !socket.isClosed()) {
+            Serializable data = (Serializable) inputStream.readObject();
+            receiveCallBack.accept(data);
+        }
+    }
+
+    /**
+     * Sends serializable data asynchronously.
+     */
+    public void sendData(Serializable data) {
+        sendExecutor.submit(() -> {
+            try {
+                if (outputStream != null) {
+                    outputStream.writeObject(data);
+                    outputStream.flush();
+                }
+            } catch (IOException e) {
+                if (errorCallback != null) errorCallback.accept(e);
+            }
+        });
+    }
+
+    /**
+     * Sends an image asynchronously.
+     */
+    public void sendImage(Image image) {
+        sendData(image);
+    }
+
+    /**
+     * Closes the connection and shuts down executors.
+     */
+    public void closeConnection() {
+        running = false;
+        closeResources();
+        connectionExecutor.shutdownNow();
+        sendExecutor.shutdown();
+    }
+
+    private void closeResources() {
+        tryClose(inputStream);
+        tryClose(outputStream);
+        tryClose(socket);
+        tryClose(serverSocket);
+    }
+
+    private void tryClose(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        closeConnection();
+    }
 }

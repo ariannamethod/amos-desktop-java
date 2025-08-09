@@ -137,7 +137,9 @@ public class HomeController implements Initializable {
                     }
                 }
             }
-        }), "127.0.0.1", name.matches("Jetlight"), 55555);
+        }), status -> {
+            // Connection status updates can be handled here
+        }, e -> e.printStackTrace(), "127.0.0.1", name.matches("Jetlight"), 55555);
         connection.openConnection();
 
         usersListView.getSelectionModel().select(0);
@@ -150,28 +152,24 @@ public class HomeController implements Initializable {
     }
 
     private void sendMessage() {
-        try {
-            String text = messageField.getText();
-            if (text.isEmpty()) return;
-            if (text.length() > MAX_MESSAGE_LENGTH) {
-                text = text.substring(0, MAX_MESSAGE_LENGTH);
-            }
-            currentlySelectedUser.messagesList.add(new MessageViewModel(text, getCurrentTime(), true, false, null));
-            String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
-            List<String> chunks = MessageBatcher.split(text, BATCH_SIZE);
-            if (chunks.size() == 1) {
-                connection.sendData("text>" + localUser.getUserName() + ">" + receiver + ">" + text);
-            } else {
-                String batchId = String.valueOf(System.currentTimeMillis());
-                for (int i = 0; i < chunks.size(); i++) {
-                    connection.sendData("batch>" + batchId + ">" + localUser.getUserName() + ">" + receiver + ">" + i + ">" + chunks.size() + ">" + chunks.get(i));
-                }
-            }
-            messageField.clear();
-            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
-        } catch (IOException e) {
-            e.printStackTrace();
+        String text = messageField.getText();
+        if (text.isEmpty()) return;
+        if (text.length() > MAX_MESSAGE_LENGTH) {
+            text = text.substring(0, MAX_MESSAGE_LENGTH);
         }
+        currentlySelectedUser.messagesList.add(new MessageViewModel(text, getCurrentTime(), true, false, null));
+        String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
+        List<String> chunks = MessageBatcher.split(text, BATCH_SIZE);
+        if (chunks.size() == 1) {
+            connection.sendData("text>" + localUser.getUserName() + ">" + receiver + ">" + text);
+        } else {
+            String batchId = String.valueOf(System.currentTimeMillis());
+            for (int i = 0; i < chunks.size(); i++) {
+                connection.sendData("batch>" + batchId + ">" + localUser.getUserName() + ">" + receiver + ">" + i + ">" + chunks.size() + ">" + chunks.get(i));
+            }
+        }
+        messageField.clear();
+        messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
     }
 
     @FXML
