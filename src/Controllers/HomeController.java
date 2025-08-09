@@ -30,9 +30,9 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.concurrent.*;
 
 import static ToolBox.Utilities.getCurrentTime;
 
@@ -56,7 +56,10 @@ public class HomeController implements Initializable {
 
     private static final int MAX_MESSAGE_LENGTH = 100000;
     private static final int BATCH_SIZE = 4096;
-    private final Map<String, String[]> pendingBatches = new HashMap<>();
+    private static final long BATCH_TIMEOUT_MS = 60000;
+    private static final boolean LOG_DISCARDED_BATCHES = true;
+    private final ScheduledExecutorService batchCleaner = Executors.newSingleThreadScheduledExecutor();
+    private final Map<String, PendingBatch> pendingBatches = new ConcurrentHashMap<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -122,18 +125,11 @@ public class HomeController implements Initializable {
                 String chunk = messageInfo[6];
                 if (shouldReceive(receiver)) {
                     String key = sender + ">" + receiver + ">" + batchId;
-                    String[] parts = pendingBatches.computeIfAbsent(key, k -> new String[total]);
-                    parts[index] = chunk;
-                    boolean complete = true;
-                    for (String part : parts) {
-                        if (part == null) {
-                            complete = false;
-                            break;
-                        }
-                    }
-                    if (complete) {
+                    PendingBatch batch = pendingBatches.computeIfAbsent(key, k -> new PendingBatch(total));
+                    batch.parts[index] = chunk;
+                    if (batch.isComplete()) {
                         StringBuilder full = new StringBuilder();
-                        for (String part : parts) {
+                        for (String part : batch.parts) {
                             full.append(part);
                         }
                         pendingBatches.remove(key);
@@ -143,6 +139,8 @@ public class HomeController implements Initializable {
             }
         }), "127.0.0.1", name.equals("Jetlight"), 55555);
         connection.openConnection();
+        batchCleaner.scheduleAtFixedRate(this::cleanupPendingBatches,
+                BATCH_TIMEOUT_MS, BATCH_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
         usersListView.getSelectionModel().select(0);
     }
@@ -328,6 +326,7 @@ public class HomeController implements Initializable {
     @FXML
     void closeApp(MouseEvent event) {
         try {
+            batchCleaner.shutdownNow();
             connection.closeConnection();
             Main.stage.close();
         } catch (IOException e) {
@@ -349,6 +348,18 @@ public class HomeController implements Initializable {
         return -1;
     }
 
+    private void cleanupPendingBatches() {
+        long now = System.currentTimeMillis();
+        pendingBatches.entrySet().removeIf(entry -> {
+            PendingBatch batch = entry.getValue();
+            boolean expired = now - batch.timestamp > BATCH_TIMEOUT_MS;
+            if (expired && LOG_DISCARDED_BATCHES) {
+                System.out.println("Discarding incomplete batch: " + entry.getKey());
+            }
+            return expired;
+        });
+    }
+
     private boolean shouldReceive(String receiver) {
         return receiver.equals(localUser.getUserName()) || (receiver.equals("bots") && localUser.isBot());
     }
@@ -365,6 +376,25 @@ public class HomeController implements Initializable {
         System.out.println("Sender: " + usersList.get(userSender).userName
                 + "\n" + "Receiver: " + localUser.getUserName()
                 + "\n" + "Image : " + image);
+    }
+
+    private static class PendingBatch {
+        final String[] parts;
+        final long timestamp;
+
+        PendingBatch(int total) {
+            this.parts = new String[total];
+            this.timestamp = System.currentTimeMillis();
+        }
+
+        boolean isComplete() {
+            for (String part : parts) {
+                if (part == null) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
 }
