@@ -33,6 +33,7 @@ import java.util.ResourceBundle;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.Objects;
 
 import static ToolBox.Utilities.getCurrentTime;
 
@@ -52,7 +53,7 @@ public class HomeController implements Initializable {
     NetworkConnection connection;
     private ObservableList<UserViewModel> usersList = FXCollections.observableArrayList();
     UserViewModel currentlySelectedUser, localUser;
-    Image userImage = new Image("resources/img/smile.png");
+    Image userImage = new Image(Objects.requireNonNull(getClass().getResource("/resources/img/smile.png")).toExternalForm());
 
     private static final int MAX_MESSAGE_LENGTH = 100000;
     private static final int BATCH_SIZE = 4096;

@@ -18,10 +18,10 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
     private final ImageCell outgoingImage;
 
     public MessageCustomCellController() {
-        incomingMessage = loadMessageCell("../Views/incoming_message_custom_cell_view.fxml");
-        outgoingMessage = loadMessageCell("../Views/outgoing_message_custom_cell_view.fxml");
-        incomingImage = loadImageCell("../Views/incoming_image_custom_cell_view.fxml");
-        outgoingImage = loadImageCell("../Views/outgoing_image_custom_cell_view.fxml");
+        incomingMessage = loadMessageCell("/Views/incoming_message_custom_cell_view.fxml");
+        outgoingMessage = loadMessageCell("/Views/outgoing_message_custom_cell_view.fxml");
+        incomingImage = loadImageCell("/Views/incoming_image_custom_cell_view.fxml");
+        outgoingImage = loadImageCell("/Views/outgoing_image_custom_cell_view.fxml");
     }
 
     private MessageCell loadMessageCell(String resource) {

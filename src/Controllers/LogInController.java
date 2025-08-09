@@ -52,7 +52,7 @@ public class LogInController implements Initializable {
 
         try {
             userName = trimmedName;
-            Parent root = FXMLLoader.load(getClass().getResource("../Views/home_view.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/Views/home_view.fxml"));
             Main.stage.setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();

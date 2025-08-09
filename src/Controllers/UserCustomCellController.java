@@ -38,7 +38,7 @@ public class UserCustomCellController extends ListCell<UserViewModel> {
     private final GridPane rootNode;
 
     public UserCustomCellController() {
-        fxmlLoader = new FXMLLoader(getClass().getResource("../Views/user_custom_cell_view.fxml"));
+        fxmlLoader = new FXMLLoader(getClass().getResource("/Views/user_custom_cell_view.fxml"));
         fxmlLoader.setController(this);
         try {
             rootNode = fxmlLoader.load();
