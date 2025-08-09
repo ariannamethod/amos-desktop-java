@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
@@ -36,8 +37,21 @@ public class LogInController implements Initializable {
 
     @FXML
     void signUp(ActionEvent event) {
+        String enteredName = userNameTextField.getText();
+        if (enteredName == null) {
+            enteredName = "";
+        }
+
+        String trimmedName = enteredName.trim();
+        if (trimmedName.isEmpty() || !enteredName.equals(trimmedName)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Please enter a valid username.");
+            alert.show();
+            return;
+        }
+
         try {
-            userName = userNameTextField.getText();
+            userName = trimmedName;
             Parent root = FXMLLoader.load(getClass().getResource("../Views/home_view.fxml"));
             Main.stage.setScene(new Scene(root));
         } catch (IOException e) {
