@@ -33,6 +33,7 @@ import java.util.ResourceBundle;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.Base64;
 
 import static ToolBox.Utilities.getCurrentTime;
 
@@ -56,6 +57,7 @@ public class HomeController implements Initializable {
 
     private static final int MAX_MESSAGE_LENGTH = 100000;
     private static final int BATCH_SIZE = 4096;
+    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
     private final Map<String, String[]> pendingBatches = new HashMap<>();
 
     @Override
@@ -99,19 +101,15 @@ public class HomeController implements Initializable {
         );
 
         connection = new NetworkConnection(data -> Platform.runLater(() -> {
-            Image image = null;
             String[] messageInfo = data.toString().split(">");
             String type = messageInfo[0];
-            if (type.equals("image")) {
-                image = new Image((InputStream) data);
-            }
 
             if (type.equals("text")) {
                 String sender = messageInfo[1];
                 String receiver = messageInfo[2];
                 String messageText = messageInfo[3];
                 if (shouldReceive(receiver)) {
-                    handleIncoming(sender, messageText, image);
+                    handleIncoming(sender, messageText, null);
                 }
             } else if (type.equals("batch")) {
                 String batchId = messageInfo[1];
@@ -137,7 +135,20 @@ public class HomeController implements Initializable {
                             full.append(part);
                         }
                         pendingBatches.remove(key);
-                        handleIncoming(sender, full.toString(), image);
+                        handleIncoming(sender, full.toString(), null);
+                    }
+                }
+            } else if (type.equals("image")) {
+                String sender = messageInfo[1];
+                String receiver = messageInfo[2];
+                String base64 = messageInfo[3];
+                if (shouldReceive(receiver)) {
+                    try {
+                        byte[] bytes = Base64.getDecoder().decode(base64);
+                        Image image = new Image(new ByteArrayInputStream(bytes));
+                        handleIncoming(sender, "", image);
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("Failed to decode image: " + e.getMessage());
                     }
                 }
             }
@@ -188,19 +199,34 @@ public class HomeController implements Initializable {
 
     @FXML
     void attachFile(MouseEvent event) {
-        try {
-            FileChooser fileChooser = new FileChooser();
-            File imageFile = fileChooser.showOpenDialog(new Stage());
-            if (imageFile == null) return;
-            BufferedImage bufferedImage = ImageIO.read(imageFile);
-            Image image = SwingFXUtils.toFXImage(bufferedImage, null);
-            currentlySelectedUser.messagesList.add(new MessageViewModel("", getCurrentTime(), false, true, image));
-            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+        FileChooser fileChooser = new FileChooser();
+        File imageFile = fileChooser.showOpenDialog(new Stage());
+        if (imageFile == null) return;
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (imageFile.length() > MAX_IMAGE_SIZE) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Image is too large. Maximum size is 5 MB.");
+            alert.showAndWait();
+            return;
         }
 
+        try {
+            BufferedImage bufferedImage = ImageIO.read(imageFile);
+            if (bufferedImage == null) {
+                throw new IOException("Unsupported image format");
+            }
+            Image image = SwingFXUtils.toFXImage(bufferedImage, null);
+            currentlySelectedUser.messagesList.add(new MessageViewModel("", getCurrentTime(), true, true, image));
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", baos);
+            String base64 = Base64.getEncoder().encodeToString(baos.toByteArray());
+            String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
+            connection.sendData("image>" + localUser.getUserName() + ">" + receiver + ">" + base64);
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Unable to send image.");
+            alert.showAndWait();
+        }
 
     }
 
