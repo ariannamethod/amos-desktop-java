@@ -41,12 +41,43 @@ public class NetworkConnection {
     }
 
     public void closeConnection() throws IOException {
-        connection.socket.close();
+        connection.running = false;
+        try {
+            if (connection.inputStream != null) {
+                connection.inputStream.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (connection.outputStream != null) {
+                    connection.outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (connection.socket != null && !connection.socket.isClosed()) {
+                        connection.socket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        try {
+            connection.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        }
     }
 
     private class ConnectionThread extends Thread {
         private Socket socket;
         private ObjectOutputStream outputStream;
+        private ObjectInputStream inputStream;
+        private volatile boolean running = true;
 
         @Override
         public void run() {
@@ -59,15 +90,37 @@ public class NetworkConnection {
                 socket.setTcpNoDelay(true);
                 this.socket = socket;
                 this.outputStream = outputStream;
+                this.inputStream = inputStream;
 
-                while (true) {
+                while (running) {
                     Serializable data = (Serializable) inputStream.readObject();
                     receiveCallBack.accept(data);
-
                 }
 
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    if (inputStream != null) {
+                        inputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (outputStream != null) {
+                        outputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
