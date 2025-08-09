@@ -8,13 +8,13 @@ import javafx.scene.image.Image;
 
 
 public class UserViewModel {
-    public String userName;
-    public SimpleStringProperty lastMessage;
-    public SimpleStringProperty time;
-    public SimpleStringProperty notificationsNumber;
-    public Image avatarImage;
-    public ObservableList<MessageViewModel> messagesList;
-    public boolean isBot;
+    private String userName;
+    private SimpleStringProperty lastMessage;
+    private SimpleStringProperty time;
+    private SimpleStringProperty notificationsNumber;
+    private Image avatarImage;
+    private ObservableList<MessageViewModel> messagesList;
+    private boolean isBot;
 
     public UserViewModel(String userName, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
         this(userName, lastMessage, time, notificationsNumber, avatarImage, false);
@@ -56,6 +56,14 @@ public class UserViewModel {
         return time;
     }
 
+    public String getTime() {
+        return time.get();
+    }
+
+    public void setTime(String time) {
+        this.time.set(time);
+    }
+
     public String getNotificationsNumber() {
         return notificationsNumber.get();
     }
@@ -82,6 +90,14 @@ public class UserViewModel {
 
     public void setBot(boolean bot) {
         isBot = bot;
+    }
+
+    public ObservableList<MessageViewModel> getMessagesList() {
+        return messagesList;
+    }
+
+    public void setMessagesList(ObservableList<MessageViewModel> messagesList) {
+        this.messagesList = messagesList;
     }
 
     //endregion
