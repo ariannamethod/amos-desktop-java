@@ -43,3 +43,14 @@ Additional goals mention persistent storage for messages and multimedia, richer 
 Contributors are welcome to fork the repository, propose improvements, and submit pull requests that align with the project's clean coding style.
 
 This revised documentation encapsulates the current state of Arianna Method Os Desktop-2 and records the auditing updates performed in this iteration.
+
+## Building a Standalone JAR
+
+A Maven build script is included to bundle all dependencies into a single runnable archive.
+
+```bash
+mvn package
+java -jar target/amos-desktop-java-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+The resulting JAR can be executed directly and does not require manual installation of dependencies.
