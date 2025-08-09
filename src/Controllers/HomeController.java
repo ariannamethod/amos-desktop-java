@@ -60,7 +60,7 @@ public class HomeController implements Initializable {
         usersList.add(new UserViewModel(name, "message ",
                 getCurrentTime(), 0 + "", userImage));
 
-        if (name.matches("Oussama")) {
+        if (name.equals("Oussama")) {
             usersList.addAll(new UserViewModel("Oliver", "Hello", getCurrentTime(), 1 + "", userImage)
                     , new UserViewModel("Harry", "Did you receive my call?", getCurrentTime(), 1 + "", userImage)
                     , new UserViewModel("George", "How are you?", getCurrentTime(), 2 + "", userImage)
@@ -98,18 +98,18 @@ public class HomeController implements Initializable {
             Image image = null;
             String[] messageInfo = data.toString().split(">");
             String type = messageInfo[0];
-            if (type.matches("image")) {
+            if (type.equals("image")) {
                 image = new Image((InputStream) data);
             }
 
-            if (type.matches("text")) {
+            if (type.equals("text")) {
                 String sender = messageInfo[1];
                 String receiver = messageInfo[2];
                 String messageText = messageInfo[3];
                 if (shouldReceive(receiver)) {
                     handleIncoming(sender, messageText, image);
                 }
-            } else if (type.matches("batch")) {
+            } else if (type.equals("batch")) {
                 String batchId = messageInfo[1];
                 String sender = messageInfo[2];
                 String receiver = messageInfo[3];
@@ -137,7 +137,7 @@ public class HomeController implements Initializable {
                     }
                 }
             }
-        }), "127.0.0.1", name.matches("Jetlight"), 55555);
+        }), "127.0.0.1", name.equals("Jetlight"), 55555);
         connection.openConnection();
 
         usersListView.getSelectionModel().select(0);
@@ -241,7 +241,7 @@ public class HomeController implements Initializable {
 
     int findUser(String userName) {
         for (int i = 0; i < usersList.size(); i++) {
-            if (usersList.get(i).getUserName().matches(userName)) {
+            if (usersList.get(i).getUserName().equals(userName)) {
                 return i;
             }
         }
@@ -249,13 +249,13 @@ public class HomeController implements Initializable {
     }
 
     private boolean shouldReceive(String receiver) {
-        return receiver.matches(localUser.getUserName()) || (receiver.matches("bots") && localUser.isBot());
+        return receiver.equals(localUser.getUserName()) || (receiver.equals("bots") && localUser.isBot());
     }
 
     private void handleIncoming(String sender, String messageText, Image image) {
         int userSender = findUser(sender);
         usersList.get(userSender).time.setValue(getCurrentTime());
-        if (messageText.matches("null")) {
+        if (messageText.equals("null")) {
             usersList.get(userSender).lastMessage.setValue(messageText);
         }
         usersList.get(userSender).messagesList.add(new MessageViewModel(messageText, getCurrentTime(), false, image != null, image));
