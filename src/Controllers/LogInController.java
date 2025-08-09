@@ -10,6 +10,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.input.MouseEvent;
 
+import java.util.regex.Pattern;
+import ToolBox.AuthService;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -17,8 +20,11 @@ import java.util.ResourceBundle;
 public class LogInController implements Initializable {
 
     public static String userName;
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,15}$");
     @FXML
     private JFXTextField userNameTextField;
+    @FXML
+    private JFXTextField phoneNumberTextField;
 
 
     @Override
@@ -43,9 +49,20 @@ public class LogInController implements Initializable {
         }
 
         String trimmedName = enteredName.trim();
-        if (trimmedName.isEmpty() || !enteredName.equals(trimmedName)) {
+        if (!NAME_PATTERN.matcher(trimmedName).matches()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Please enter a valid username.");
+            alert.show();
+            return;
+        }
+
+        String phoneNumber = phoneNumberTextField.getText();
+        if (phoneNumber == null) {
+            phoneNumber = "";
+        }
+        if (!AuthService.authenticate(trimmedName, phoneNumber)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Authentication failed. Please check your credentials.");
             alert.show();
             return;
         }
