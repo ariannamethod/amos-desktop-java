@@ -1,9 +1,11 @@
 package ToolBox;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,9 +37,12 @@ public class NetworkConnection {
         connection.outputStream.writeObject(data);
     }
 
-    public void sendImage(Image image) throws IOException {
-        connection.outputStream.defaultWriteObject();
-        connection.outputStream.writeObject(image);
+    public void sendImage(String sender, String receiver, Image image) throws IOException {
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, "png", output);
+        ImageMessage imageMessage = new ImageMessage(sender, receiver, output.toByteArray());
+        connection.outputStream.writeObject(imageMessage);
     }
 
     public void closeConnection() throws IOException {

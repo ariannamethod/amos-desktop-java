@@ -4,6 +4,7 @@ import Models.UserViewModel;
 import Models.MessageViewModel;
 import ToolBox.NetworkConnection;
 import ToolBox.MessageBatcher;
+import ToolBox.ImageMessage;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -95,19 +96,22 @@ public class HomeController implements Initializable {
         );
 
         connection = new NetworkConnection(data -> Platform.runLater(() -> {
-            Image image = null;
             String[] messageInfo = data.toString().split(">");
             String type = messageInfo[0];
             if (type.matches("image")) {
-                image = new Image((InputStream) data);
-            }
-
-            if (type.matches("text")) {
+                ImageMessage img = (ImageMessage) data;
+                String sender = messageInfo[1];
+                String receiver = messageInfo[2];
+                if (shouldReceive(receiver)) {
+                    Image image = new Image(new ByteArrayInputStream(img.getImageBytes()));
+                    handleIncoming(sender, "null", image);
+                }
+            } else if (type.matches("text")) {
                 String sender = messageInfo[1];
                 String receiver = messageInfo[2];
                 String messageText = messageInfo[3];
                 if (shouldReceive(receiver)) {
-                    handleIncoming(sender, messageText, image);
+                    handleIncoming(sender, messageText, null);
                 }
             } else if (type.matches("batch")) {
                 String batchId = messageInfo[1];
@@ -133,7 +137,7 @@ public class HomeController implements Initializable {
                             full.append(part);
                         }
                         pendingBatches.remove(key);
-                        handleIncoming(sender, full.toString(), image);
+                        handleIncoming(sender, full.toString(), null);
                     }
                 }
             }
@@ -191,6 +195,8 @@ public class HomeController implements Initializable {
             Image image = SwingFXUtils.toFXImage(bufferedImage, null);
             currentlySelectedUser.messagesList.add(new MessageViewModel("", getCurrentTime(), false, true, image));
             messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+            String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
+            connection.sendImage(localUser.getUserName(), receiver, image);
 
         } catch (IOException e) {
             e.printStackTrace();
