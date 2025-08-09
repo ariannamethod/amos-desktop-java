@@ -72,8 +72,8 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
         if (empty || item == null) {
             setText(null);
             setGraphic(null);
-        } else if (item.isOutgoing) {
-            if (item.isImage) {
+        } else if (item.isOutgoing()) {
+            if (item.isImage()) {
                 outgoingImage.messageTimeLabel.setText(item.getTime());
                 outgoingImage.imageView.setImage(item.getImage());
                 setGraphic(outgoingImage.root);
@@ -83,7 +83,7 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
                 setGraphic(outgoingMessage.root);
             }
         } else {
-            if (item.isImage) {
+            if (item.isImage()) {
                 incomingImage.messageTimeLabel.setText(item.getTime());
                 incomingImage.imageView.setImage(item.getImage());
                 setGraphic(incomingImage.root);

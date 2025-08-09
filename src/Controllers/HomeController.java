@@ -96,9 +96,9 @@ public class HomeController implements Initializable {
         });
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                     currentlySelectedUser = usersListView.getSelectionModel().getSelectedItem();
-                    messagesListView.setItems(currentlySelectedUser.messagesList);
-                    chatRoomNameLabel.setText(currentlySelectedUser.userName);
-                    messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+                    messagesListView.setItems(currentlySelectedUser.getMessagesList());
+                    chatRoomNameLabel.setText(currentlySelectedUser.getUserName());
+                    messagesListView.scrollTo(currentlySelectedUser.getMessagesList().size());
                 }
         );
 
@@ -164,7 +164,7 @@ public class HomeController implements Initializable {
             if (text.length() > MAX_MESSAGE_LENGTH) {
                 text = text.substring(0, MAX_MESSAGE_LENGTH);
             }
-            currentlySelectedUser.messagesList.add(new MessageViewModel(text, getCurrentTime(), true, false, null));
+            currentlySelectedUser.getMessagesList().add(new MessageViewModel(text, getCurrentTime(), true, false, null));
             String receiver = (currentlySelectedUser.isBot() && localUser.isBot()) ? "bots" : currentlySelectedUser.getUserName();
             List<String> chunks = MessageBatcher.split(text, BATCH_SIZE);
             if (chunks.size() == 1) {
@@ -176,7 +176,7 @@ public class HomeController implements Initializable {
                 }
             }
             messageField.clear();
-            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+            messagesListView.scrollTo(currentlySelectedUser.getMessagesList().size());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -198,8 +198,8 @@ public class HomeController implements Initializable {
             if (imageFile == null) return;
             BufferedImage bufferedImage = ImageIO.read(imageFile);
             Image image = SwingFXUtils.toFXImage(bufferedImage, null);
-            currentlySelectedUser.messagesList.add(new MessageViewModel("", getCurrentTime(), false, true, image));
-            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+            currentlySelectedUser.getMessagesList().add(new MessageViewModel("", getCurrentTime(), false, true, image));
+            messagesListView.scrollTo(currentlySelectedUser.getMessagesList().size());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -315,9 +315,9 @@ public class HomeController implements Initializable {
                 }
                 Platform.runLater(() -> {
                     info.close();
-                    currentlySelectedUser.messagesList.add(new MessageViewModel("[Voice message] " + file.getName(),
+                    currentlySelectedUser.getMessagesList().add(new MessageViewModel("[Voice message] " + file.getName(),
                             getCurrentTime(), true, false, null));
-                    messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+                    messagesListView.scrollTo(currentlySelectedUser.getMessagesList().size());
                 });
             } catch (Exception ex) {
                 Platform.runLater(() -> {
@@ -359,14 +359,14 @@ public class HomeController implements Initializable {
 
     private void handleIncoming(String sender, String messageText, Image image) {
         int userSender = findUser(sender);
-        usersList.get(userSender).time.setValue(getCurrentTime());
+        usersList.get(userSender).setTime(getCurrentTime());
         if (messageText.equals("null")) {
-            usersList.get(userSender).lastMessage.setValue(messageText);
+            usersList.get(userSender).setLastMessage(messageText);
         }
-        usersList.get(userSender).messagesList.add(new MessageViewModel(messageText, getCurrentTime(), false, image != null, image));
-        messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
-        usersList.get(userSender).notificationsNumber.setValue((Integer.valueOf(currentlySelectedUser.notificationsNumber.getValue()) + 1) + "");
-        System.out.println("Sender: " + usersList.get(userSender).userName
+        usersList.get(userSender).getMessagesList().add(new MessageViewModel(messageText, getCurrentTime(), false, image != null, image));
+        messagesListView.scrollTo(currentlySelectedUser.getMessagesList().size());
+        usersList.get(userSender).setNotificationsNumber((Integer.valueOf(currentlySelectedUser.getNotificationsNumber()) + 1) + "");
+        System.out.println("Sender: " + usersList.get(userSender).getUserName()
                 + "\n" + "Receiver: " + localUser.getUserName()
                 + "\n" + "Image : " + image);
     }

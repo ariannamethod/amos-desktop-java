@@ -3,11 +3,11 @@ package Models;
 import javafx.scene.image.Image;
 
 public class MessageViewModel {
-    Image image;
-    String message;
-    String time;
-    public boolean isOutgoing;
-    public boolean isImage;
+    private Image image;
+    private String message;
+    private String time;
+    private boolean isOutgoing;
+    private boolean isImage;
 
     public MessageViewModel(String message, String time, boolean isOutgoing, boolean isImage, Image image) {
         this.message = message;
@@ -39,6 +39,14 @@ public class MessageViewModel {
 
     public void setOutgoing(boolean outgoing) {
         isOutgoing = outgoing;
+    }
+
+    public boolean isImage() {
+        return isImage;
+    }
+
+    public void setImage(boolean image) {
+        isImage = image;
     }
 
     public Image getImage() {
