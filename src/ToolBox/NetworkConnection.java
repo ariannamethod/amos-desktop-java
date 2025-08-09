@@ -1,26 +1,23 @@
 package ToolBox;
 
-import javafx.scene.image.Image;
+import Models.Message;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Consumer;
 
 public class NetworkConnection {
     private ConnectionThread connection = new ConnectionThread();
-    public Consumer<Serializable> receiveCallBack;
+    public Consumer<Message> receiveCallBack;
     public String ip;
     public boolean isServer;
     public int port;
 
 
-    public NetworkConnection(Consumer<Serializable> receiveCallBack, String ip, boolean isServer, int port) {
+    public NetworkConnection(Consumer<Message> receiveCallBack, String ip, boolean isServer, int port) {
         this.receiveCallBack = receiveCallBack;
         this.ip = ip;
         this.isServer = isServer;
@@ -31,13 +28,8 @@ public class NetworkConnection {
         connection.start();
     }
 
-    public void sendData(Serializable data) throws IOException {
-        connection.outputStream.writeObject(data);
-    }
-
-    public void sendImage(Image image) throws IOException {
-        connection.outputStream.defaultWriteObject();
-        connection.outputStream.writeObject(image);
+    public void sendMessage(Message message) throws IOException {
+        connection.outputStream.writeObject(message);
     }
 
     public void closeConnection() throws IOException {
@@ -61,9 +53,8 @@ public class NetworkConnection {
                 this.outputStream = outputStream;
 
                 while (true) {
-                    Serializable data = (Serializable) inputStream.readObject();
+                    Message data = (Message) inputStream.readObject();
                     receiveCallBack.accept(data);
-
                 }
 
             } catch (IOException | ClassNotFoundException e) {
