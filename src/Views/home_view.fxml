@@ -16,10 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<GridPane alignment="center" styleClass="background-white" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.HomeController">
-    <stylesheets>
-        <URL value="@../resources/css/colors.css" />
-    </stylesheets>
+<GridPane alignment="center" styleClass="background-white" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.HomeController" resources="bundles.messages">
     <columnConstraints>
         <ColumnConstraints minWidth="10.0" percentWidth="100.0" />
     </columnConstraints>
@@ -53,7 +50,7 @@
                   <Insets right="10.0" />
                </padding>
             </HBox>
-            <Label fx:id="userNameLabel" text="Chat room" textAlignment="CENTER" textFill="WHITE">
+            <Label fx:id="userNameLabel" text="%home.chatRoom" textAlignment="CENTER" styleClass="text-white">
                <font>
                   <Font name="Segoe UI Bold" size="20.0" />
                </font>
@@ -89,12 +86,12 @@
                               <Insets />
                            </HBox.margin>
                            <children>
-                                      <Label fx:id="chatRoomNameLabel" text="Chat room" textAlignment="CENTER" textFill="WHITE">
+                                      <Label fx:id="chatRoomNameLabel" text="%home.chatRoom" textAlignment="CENTER" styleClass="text-white">
                                           <font>
                                               <Font name="Segoe UI Bold" size="20.0" />
                                           </font>
                                       </Label>
-                              <Label fx:id="lastMessageLabel" text="Last Seen recently..." textAlignment="CENTER" textFill="#92a3af">
+                              <Label fx:id="lastMessageLabel" text="%home.lastSeen" textAlignment="CENTER" styleClass="text-gray-light">
                                  <font>
                                     <Font name="Segoe UI" size="16.0" />
                                  </font>
@@ -142,7 +139,7 @@
                               <Image url="@../resources/img/attach.png" />
                            </image>
                         </ImageView>
-                        <TextArea fx:id="messageField" onKeyPressed="#messageFieldKeyPressed" prefHeight="100.0" prefWidth="784.0" promptText="Type a message..." wrapText="true" styleClass="transparent-background" stylesheets="@../resources/css/textField.css" HBox.hgrow="ALWAYS" />
+                        <TextArea fx:id="messageField" onKeyPressed="#messageFieldKeyPressed" prefHeight="100.0" prefWidth="784.0" promptText="%home.messagePrompt" wrapText="true" styleClass="transparent-background" stylesheets="@../resources/css/textField.css" HBox.hgrow="ALWAYS" />
                         <ImageView fitHeight="35.0" fitWidth="35.0" onMouseClicked="#smileyButtonClicked" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../resources/img/smile.png" />
@@ -178,7 +175,7 @@
                                         <Image url="@../resources/img/Liste.png" />
                                     </image>
                                 </ImageView>
-                                <TextField promptText="Search" styleClass="background-search" HBox.hgrow="ALWAYS" />
+                                <TextField promptText="%home.search" styleClass="background-search" HBox.hgrow="ALWAYS" />
                             </children>
                             <padding>
                                 <Insets left="20.0" right="20.0" />

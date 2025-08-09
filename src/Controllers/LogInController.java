@@ -3,10 +3,7 @@ package Controllers;
 import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.input.MouseEvent;
 
@@ -52,8 +49,7 @@ public class LogInController implements Initializable {
 
         try {
             userName = trimmedName;
-            Parent root = FXMLLoader.load(getClass().getResource("../Views/home_view.fxml"));
-            Main.stage.setScene(new Scene(root));
+            Main.setRoot("/Views/home_view.fxml");
         } catch (IOException e) {
             e.printStackTrace();
         }

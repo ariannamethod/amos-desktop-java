@@ -14,10 +14,9 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<GridPane alignment="center" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LogInController">
+<GridPane alignment="center" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LogInController" resources="bundles.messages">
    <stylesheets>
       <URL value="@../resources/css/imageBackground.css" />
-      <URL value="@../resources/css/colors.css" />
    </stylesheets>
    <columnConstraints>
       <ColumnConstraints minWidth="10.0" percentWidth="100.0" />
@@ -71,12 +70,12 @@
                         <Image url="@../resources/img/email.png" />
                      </image>
                   </ImageView>
-                  <Label text="JetGram" textFill="WHITE">
+                  <Label text="%app.title" styleClass="text-white">
                      <font>
                         <Font name="Calibri Bold" size="36.0" />
                      </font>
                   </Label>
-                  <Label alignment="CENTER" prefHeight="67.0" prefWidth="357.0" text="Weclome to the official JetGram Desktop app!" textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                  <Label alignment="CENTER" prefHeight="67.0" prefWidth="357.0" text="%login.subtitle" textAlignment="CENTER" styleClass="text-gray" wrapText="true">
                      <font>
                         <Font name="Segoe UI" size="22.0" />
                      </font>
@@ -90,7 +89,7 @@
                                     <Insets />
                                  </HBox.margin>
                               </Circle>
-                              <Label alignment="CENTER" text="Free and powerful." textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                              <Label alignment="CENTER" text="%login.featureFree" textAlignment="CENTER" styleClass="text-gray" wrapText="true">
                                  <font>
                                     <Font name="Segoe UI" size="22.0" />
                                  </font>
@@ -107,7 +106,7 @@
                                     <Insets />
                                  </HBox.margin>
                               </Circle>
-                              <Label alignment="CENTER" text="Fast and secure." textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                              <Label alignment="CENTER" text="%login.featureFast" textAlignment="CENTER" styleClass="text-gray" wrapText="true">
                                  <font>
                                     <Font name="Segoe UI" size="22.0" />
                                  </font>
@@ -124,7 +123,7 @@
                                     <Insets />
                                  </HBox.margin>
                               </Circle>
-                              <Label alignment="CENTER" text="Fun and stylish." textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                              <Label alignment="CENTER" text="%login.featureFun" textAlignment="CENTER" styleClass="text-gray" wrapText="true">
                                  <font>
                                     <Font name="Segoe UI" size="22.0" />
                                  </font>
@@ -158,7 +157,7 @@
                <children>
                   <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="20.0" GridPane.columnIndex="1">
                      <children>
-                        <Label text="Create an account" textFill="WHITE">
+                        <Label text="%login.createAccount" styleClass="text-white">
                            <font>
                               <Font name="Calibri" size="42.0" />
                            </font>
@@ -166,21 +165,21 @@
                               <Insets bottom="30.0" />
                            </VBox.margin>
                         </Label>
-                        <JFXTextField fx:id="userNameTextField" focusColor="WHITE" promptText="User name" stylesheets="@../resources/css/textField.css" unFocusColor="#d1d3d3">
+                        <JFXTextField fx:id="userNameTextField" focusColor="WHITE" promptText="%login.usernamePrompt" stylesheets="@../resources/css/textField.css" unFocusColor="#d1d3d3">
                            <font>
                               <Font size="22.0" />
                            </font>
                         </JFXTextField>
-                        <JFXTextField focusColor="WHITE" promptText="Phone Number" stylesheets="@../resources/css/textField.css" unFocusColor="#d1d3d3">
+                        <JFXTextField focusColor="WHITE" promptText="%login.phonePrompt" stylesheets="@../resources/css/textField.css" unFocusColor="#d1d3d3">
                            <font>
                               <Font size="22.0" />
                            </font>
                         </JFXTextField>
-                        <JFXButton onAction="#signUp" prefHeight="54.0" prefWidth="500.0" ripplerFill="WHITE" styleClass="button-dark" text="Sign up" textFill="WHITE">
-                           <font>
-                              <Font name="Calibri" size="25.0" />
-                           </font>
-                           <VBox.margin>
+                        <JFXButton onAction="#signUp" prefHeight="54.0" prefWidth="500.0" ripplerFill="WHITE" styleClass="button-dark text-white" text="%login.signUp">
+                            <font>
+                               <Font name="Calibri" size="25.0" />
+                            </font>
+                            <VBox.margin>
                               <Insets bottom="10.0" top="20.0" />
                            </VBox.margin>
                         </JFXButton>
@@ -196,7 +195,7 @@
                   <Insets />
                </GridPane.margin>
                <children>
-                  <Label alignment="CENTER" text="Made with ❤ by @JetlightStudio" textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                  <Label alignment="CENTER" text="%login.madeWith" textAlignment="CENTER" styleClass="text-gray" wrapText="true">
                      <font>
                         <Font name="Segoe UI" size="16.0" />
                      </font>

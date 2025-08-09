@@ -35,3 +35,15 @@
 .transparent-background {
     -fx-background-color: transparent;
 }
+
+.text-white {
+    -fx-text-fill: white;
+}
+
+.text-gray {
+    -fx-text-fill: #7f9191;
+}
+
+.text-gray-light {
+    -fx-text-fill: #92a3af;
+}
