@@ -51,7 +51,7 @@ public class UserCustomCellController extends ListCell<UserViewModel> {
             userNameLabel.setText(String.valueOf(item.getUserName()));
             lastMessageLabel.setText(String.valueOf(item.getLastMessage()));
             messageTimeLabel.textProperty().bind(item.time);
-            if (!item.getNotificationsNumber().matches("0")) {
+            if (!item.getNotificationsNumber().equals("0")) {
                 nombreMessageLabel.textProperty().bind(item.notificationsNumberProperty());
                 if (!notificationPanel.isVisible()) notificationPanel.setVisible(true);
             }
