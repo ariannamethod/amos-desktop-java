@@ -26,10 +26,10 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
 
     private MessageCell loadMessageCell(String resource) {
         MessageCell cell = new MessageCell();
-        cell.loader = new FXMLLoader(getClass().getResource(resource));
-        cell.loader.setController(cell);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(resource));
+        loader.setController(cell);
         try {
-            cell.loader.load();
+            loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -38,10 +38,10 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
 
     private ImageCell loadImageCell(String resource) {
         ImageCell cell = new ImageCell();
-        cell.loader = new FXMLLoader(getClass().getResource(resource));
-        cell.loader.setController(cell);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(resource));
+        loader.setController(cell);
         try {
-            cell.loader.load();
+            loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -49,7 +49,6 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
     }
 
     private static class MessageCell {
-        FXMLLoader loader;
         @FXML
         GridPane root;
         @FXML
@@ -59,7 +58,6 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
     }
 
     private static class ImageCell {
-        FXMLLoader loader;
         @FXML
         GridPane root;
         @FXML
