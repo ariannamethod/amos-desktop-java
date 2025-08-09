@@ -1,0 +1,37 @@
+.background-white {
+    -fx-background-color: #fff;
+}
+
+.background-main {
+    -fx-background-color: #1F2936;
+}
+
+.background-dark {
+    -fx-background-color: #17212B;
+}
+
+.background-darker {
+    -fx-background-color: #0E1621;
+}
+
+.background-search {
+    -fx-background-color: #242F3D;
+}
+
+.button-dark {
+    -fx-background-color: #202D3A;
+}
+
+.bubble-outgoing {
+    -fx-background-radius: 10px;
+    -fx-background-color: #2B5278;
+}
+
+.bubble-incoming {
+    -fx-background-radius: 10px;
+    -fx-background-color: #182533;
+}
+
+.transparent-background {
+    -fx-background-color: transparent;
+}
