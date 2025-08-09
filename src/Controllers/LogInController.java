@@ -13,12 +13,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import ToolBox.AuthService;
+
 public class LogInController implements Initializable {
 
-    public static String userName;
     @FXML
     private JFXTextField userNameTextField;
 
+    private final AuthService authService = AuthService.getInstance();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -37,9 +39,13 @@ public class LogInController implements Initializable {
     @FXML
     void signUp(ActionEvent event) {
         try {
-            userName = userNameTextField.getText();
-            Parent root = FXMLLoader.load(getClass().getResource("../Views/home_view.fxml"));
-            Main.stage.setScene(new Scene(root));
+            String name = userNameTextField.getText();
+            if (authService.register(name)) {
+                Parent root = FXMLLoader.load(getClass().getResource("../Views/home_view.fxml"));
+                Main.stage.setScene(new Scene(root));
+            } else {
+                System.out.println("Registration failed: user already exists or invalid name");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -4,6 +4,7 @@ import Models.UserViewModel;
 import Models.MessageViewModel;
 import ToolBox.NetworkConnection;
 import ToolBox.MessageBatcher;
+import ToolBox.AuthService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -72,7 +73,7 @@ public class HomeController implements Initializable {
                     , new UserViewModel("Oscar", "I agree, when?", getCurrentTime(), 2 + "", userImage));
         }
 
-        localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), 0 + "", userImage);
+        localUser = new UserViewModel(AuthService.getInstance().getCurrentUser(), "message", getCurrentTime(), 0 + "", userImage);
         userNameLabel.setText(localUser.getUserName());
 
         usersListView.setItems(usersList);
