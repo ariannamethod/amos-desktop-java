@@ -10,16 +10,20 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javax.sound.sampled.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -201,27 +205,123 @@ public class HomeController implements Initializable {
 
     @FXML
     void searchChatRoom(MouseEvent event) {
-
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Search Messages");
+        dialog.setHeaderText("Search in chat");
+        dialog.setContentText("Enter text:");
+        dialog.showAndWait().ifPresent(query -> {
+            int index = -1;
+            for (int i = 0; i < messagesListView.getItems().size(); i++) {
+                MessageViewModel mv = messagesListView.getItems().get(i);
+                String msg = mv.getMessage();
+                if (msg != null && msg.toLowerCase().contains(query.toLowerCase())) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index >= 0) {
+                messagesListView.scrollTo(index);
+                messagesListView.getSelectionModel().select(index);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Search");
+                alert.setHeaderText(null);
+                alert.setContentText("No messages found for: " + query);
+                alert.showAndWait();
+            }
+        });
     }
 
     @FXML
     void settingsButtonClicked(MouseEvent event) {
-
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Views/settings_view.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Settings");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Unable to open settings.");
+            alert.showAndWait();
+        }
     }
 
     @FXML
     void slideMenuClicked(MouseEvent event) {
-
+        ContextMenu menu = new ContextMenu();
+        MenuItem newChat = new MenuItem("New Chat");
+        MenuItem logout = new MenuItem("Logout");
+        newChat.setOnAction(e -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Feature not available.");
+            alert.showAndWait();
+        });
+        logout.setOnAction(e -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Feature not available.");
+            alert.showAndWait();
+        });
+        menu.getItems().addAll(newChat, logout);
+        menu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
     }
 
     @FXML
     void smileyButtonClicked(MouseEvent event) {
-
+        ContextMenu menu = new ContextMenu();
+        String[] emojis = {"😀", "😂", "😍", "😢", "👍"};
+        for (String e : emojis) {
+            MenuItem item = new MenuItem(e);
+            item.setOnAction(a -> messageField.appendText(e));
+            menu.getItems().add(item);
+        }
+        menu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
     }
 
     @FXML
     void vocalMessageClicked(MouseEvent event) {
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        info.setHeaderText(null);
+        info.setContentText("Recording for 5 seconds...");
+        info.show();
 
+        new Thread(() -> {
+            try {
+                AudioFormat format = new AudioFormat(16000, 16, 2, true, true);
+                DataLine.Info dlInfo = new DataLine.Info(TargetDataLine.class, format);
+                TargetDataLine line = (TargetDataLine) AudioSystem.getLine(dlInfo);
+                line.open(format);
+                line.start();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] buffer = new byte[4096];
+                long end = System.currentTimeMillis() + 5000;
+                while (System.currentTimeMillis() < end) {
+                    int count = line.read(buffer, 0, buffer.length);
+                    if (count > 0) {
+                        out.write(buffer, 0, count);
+                    }
+                }
+                line.stop();
+                line.close();
+                byte[] audio = out.toByteArray();
+                File file = File.createTempFile("voice_", ".wav");
+                try (AudioInputStream ais = new AudioInputStream(
+                        new ByteArrayInputStream(audio), format,
+                        audio.length / format.getFrameSize())) {
+                    AudioSystem.write(ais, AudioFileFormat.Type.WAVE, file);
+                }
+                Platform.runLater(() -> {
+                    info.close();
+                    currentlySelectedUser.messagesList.add(new MessageViewModel("[Voice message] " + file.getName(),
+                            getCurrentTime(), true, false, null));
+                    messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+                });
+            } catch (Exception ex) {
+                Platform.runLater(() -> {
+                    info.close();
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Unable to record audio: " + ex.getMessage());
+                    alert.showAndWait();
+                });
+            }
+        }).start();
     }
 
     @FXML
