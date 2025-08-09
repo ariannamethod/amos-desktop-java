@@ -16,7 +16,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<GridPane alignment="center" style="-fx-background-color: #fff;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.HomeController">
+<GridPane alignment="center" styleClass="background-white" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.HomeController">
+    <stylesheets>
+        <URL value="@../resources/css/colors.css" />
+    </stylesheets>
     <columnConstraints>
         <ColumnConstraints minWidth="10.0" percentWidth="100.0" />
     </columnConstraints>
@@ -25,7 +28,7 @@
         <RowConstraints minHeight="10.0" percentHeight="95.0" vgrow="ALWAYS" />
     </rowConstraints>
     <children>
-      <GridPane style="-fx-background-color: #1F2936;">
+      <GridPane styleClass="background-main">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
          </columnConstraints>
@@ -79,7 +82,7 @@
                         <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                     <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #17212B;">
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" styleClass="background-dark">
                             <children>
                         <VBox alignment="CENTER_LEFT" spacing="5.0" HBox.hgrow="ALWAYS">
                            <HBox.margin>
@@ -120,9 +123,9 @@
                                 <Insets left="20.0" />
                             </padding>
                         </HBox>
-                        <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #0E1621;" GridPane.rowIndex="1">
+                        <VBox prefHeight="200.0" prefWidth="100.0" styleClass="background-darker" GridPane.rowIndex="1">
                      <children>
-                        <ListView fx:id="messagesListView" style="-fx-background-color: #0E1621;" VBox.vgrow="ALWAYS">
+                        <ListView fx:id="messagesListView" styleClass="background-darker" VBox.vgrow="ALWAYS">
                            <VBox.margin>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </VBox.margin>
@@ -132,14 +135,14 @@
                            </stylesheets>
                         </ListView>
                      </children></VBox>
-                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" style="-fx-background-color: #17212B;" GridPane.rowIndex="2">
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" styleClass="background-dark" GridPane.rowIndex="2">
                      <children>
                         <ImageView fitHeight="30.0" fitWidth="30.0" onMouseClicked="#attachFile" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../resources/img/attach.png" />
                            </image>
                         </ImageView>
-                        <TextArea fx:id="messageField" onKeyPressed="#messageFieldKeyPressed" prefHeight="100.0" prefWidth="784.0" promptText="Type a message..." wrapText="true" style="-fx-background-color: transparent;" stylesheets="@../resources/css/textField.css" HBox.hgrow="ALWAYS" />
+                        <TextArea fx:id="messageField" onKeyPressed="#messageFieldKeyPressed" prefHeight="100.0" prefWidth="784.0" promptText="Type a message..." wrapText="true" styleClass="transparent-background" stylesheets="@../resources/css/textField.css" HBox.hgrow="ALWAYS" />
                         <ImageView fitHeight="35.0" fitWidth="35.0" onMouseClicked="#smileyButtonClicked" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../resources/img/smile.png" />
@@ -156,7 +159,7 @@
                      </padding></HBox>
                     </children>
                 </GridPane>
-                <GridPane style="-fx-background-color: #17212B;">
+                <GridPane styleClass="background-dark">
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="100.0" />
                     </columnConstraints>
@@ -168,20 +171,20 @@
                         <DropShadow color="#000000ab" height="0.0" radius="2.4175" spread="0.2" width="11.67" />
                     </effect>
                     <children>
-                        <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #17212B;">
+                        <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="background-dark">
                             <children>
                                 <ImageView fitHeight="40.0" fitWidth="40.0" onMouseClicked="#slideMenuClicked" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@../resources/img/Liste.png" />
                                     </image>
                                 </ImageView>
-                                <TextField promptText="Search" style="-fx-background-color: #242F3D;" HBox.hgrow="ALWAYS" />
+                                <TextField promptText="Search" styleClass="background-search" HBox.hgrow="ALWAYS" />
                             </children>
                             <padding>
                                 <Insets left="20.0" right="20.0" />
                             </padding>
                         </HBox>
-                  <ListView fx:id="usersListView" style="-fx-background-color: #17212B;" GridPane.rowIndex="1">
+                  <ListView fx:id="usersListView" styleClass="background-dark" GridPane.rowIndex="1">
                      <stylesheets>
                         <URL value="@../resources/css/usersListViewCss.css" />
                         <URL value="@../resources/css/cellViewCss.css" />
